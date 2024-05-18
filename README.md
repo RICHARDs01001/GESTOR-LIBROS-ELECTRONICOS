@@ -41,6 +41,10 @@ En el archivo lector_libros.go, en caso de que prefieras cambiar la forma y la f
 
 ### Uso
 
+Una vez el codigo sea descargado, en la terminal del IDE de su preferencia:
+
+      go run interfaz.go
+
 Inicia sesión si ya tienes una cuenta, o regístrate si eres un nuevo usuario.
 
 Explora la biblioteca buscando libros por título o autor.
