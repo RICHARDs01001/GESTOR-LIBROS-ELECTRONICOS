@@ -1,322 +1,130 @@
 package main
 
 import (
-	"bufio"
 	"database/sql"
-	"fmt"
 	"log"
-	"os"
+	"net/http"
 	"strconv"
-	"strings"
+
+	"github.com/gin-gonic/gin"
+	_ "github.com/go-sql-driver/mysql"
 
 	"gestor_libros/autenticacion"
 	"gestor_libros/buscar_libros"
 	"gestor_libros/favoritos_libros"
 	"gestor_libros/lector_libros"
 	"gestor_libros/resenas_libros"
-
-	_ "github.com/go-sql-driver/mysql"
 )
 
 func main() {
-	db, err := sql.Open("mysql", "root:001002003@Rsg@/gestor_lib_electr")
+	db, err := sql.Open("mysql", "")
 	if err != nil {
 		log.Fatalf("Error al conectar con la base de datos: %v", err)
 	}
 	defer db.Close()
 
-	reader := bufio.NewReader(os.Stdin)
-	fmt.Println("Bienvenido a nuestra aplicación de libros electrónicos!")
+	usuarioRepo := &autenticacion.UsuarioRepositorySQL{DB: db}
+	router := gin.Default()
 
-	for {
-		fmt.Println("Por favor, elige una opción:")
-		fmt.Println("1. Iniciar sesión")
-		fmt.Println("2. Registrarse")
-
-		input, err := reader.ReadString('\n')
-		if err != nil {
-			fmt.Println("Error al leer la entrada:", err)
-			continue
-		}
-		input = strings.TrimSpace(input)
-
-		switch input {
-		case "1":
-			iniciarSesion(reader, db)
-		case "2":
-			registrarse(reader, db)
-		default:
-			fmt.Println("Opción no válida. Por favor, elige 1 para iniciar sesión o 2 para registrarte.")
-		}
-	}
-}
-
-func iniciarSesion(reader *bufio.Reader, db *sql.DB) {
-	fmt.Print("Ingresa tu correo electrónico: ")
-	correoElectronico, err := reader.ReadString('\n')
-	if err != nil {
-		fmt.Println("Error al leer la entrada:", err)
-		return
-	}
-	correoElectronico = strings.TrimSpace(correoElectronico)
-
-	fmt.Print("Ingresa tu contraseña: ")
-	contraseña, err := reader.ReadString('\n')
-	if err != nil {
-		fmt.Println("Error al leer la entrada:", err)
-		return
-	}
-	contraseña = strings.TrimSpace(contraseña)
-
-	usuario, err := autenticacion.IniciarSesion(db, correoElectronico, contraseña)
-	if err != nil {
-		fmt.Printf("Error al iniciar sesión: %v\n", err)
-		return
-	}
-	fmt.Printf("Bienvenido, %s!\n", usuario.Nombre)
-
-	mostrarMenuUsuario(reader, db, usuario.ID)
-}
-
-func registrarse(reader *bufio.Reader, db *sql.DB) {
-	fmt.Print("Ingresa tu nombre: ")
-	nombre, err := reader.ReadString('\n')
-	if err != nil {
-		fmt.Println("Error al leer la entrada:", err)
-		return
-	}
-	nombre = strings.TrimSpace(nombre)
-
-	fmt.Print("Ingresa tu correo electrónico: ")
-	correoElectronico, err := reader.ReadString('\n')
-	if err != nil {
-		fmt.Println("Error al leer la entrada:", err)
-		return
-	}
-	correoElectronico = strings.TrimSpace(correoElectronico)
-
-	fmt.Print("Ingresa tu contraseña: ")
-	contraseña, err := reader.ReadString('\n')
-	if err != nil {
-		fmt.Println("Error al leer la entrada:", err)
-		return
-	}
-	contraseña = strings.TrimSpace(contraseña)
-
-	err = autenticacion.Registrarse(db, nombre, correoElectronico, contraseña)
-	if err != nil {
-		fmt.Printf("Error al registrarse: %v\n", err)
-		return
-	}
-
-	fmt.Println("Usuario registrado con éxito. Por favor, inicia sesión.")
-}
-
-func mostrarMenuUsuario(reader *bufio.Reader, db *sql.DB, usuarioID int) {
-	for {
-		fmt.Println("Por favor, elige una opción:")
-		fmt.Println("1. Buscar libros")
-		fmt.Println("2. Ver libros favoritos")
-		fmt.Println("3. Salir")
-
-		input, err := reader.ReadString('\n')
-		if err != nil {
-			fmt.Println("Error al leer la entrada:", err)
-			continue
-		}
-		input = strings.TrimSpace(input)
-
-		switch input {
-		case "1":
-			buscarLibros(reader, db, usuarioID)
-		case "2":
-			verFavoritos(reader, db, usuarioID)
-		case "3":
-			fmt.Println("Saliendo...")
+	router.POST("/login", func(c *gin.Context) {
+		var credentials autenticacion.Credentials
+		if err := c.ShouldBindJSON(&credentials); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Datos inválidos"})
 			return
-		default:
-			fmt.Println("Opción no válida. Por favor, elige una opción del 1 al 3.")
 		}
-	}
-}
-
-func buscarLibros(reader *bufio.Reader, db *sql.DB, usuarioID int) {
-	fmt.Print("Ingresa el término de búsqueda: ")
-	termino, err := reader.ReadString('\n')
-	if err != nil {
-		fmt.Println("Error al leer la entrada:", err)
-		return
-	}
-	termino = strings.TrimSpace(termino)
-
-	librosEncontrados, err := buscar_libros.BuscarLibros(db, termino)
-	if err != nil {
-		fmt.Printf("Error al buscar libros: %v\n", err)
-		return
-	}
-
-	if len(librosEncontrados) == 0 {
-		fmt.Println("No se encontraron libros con ese término.")
-		return
-	}
-
-	for i, libro := range librosEncontrados {
-		fmt.Printf("%d. %s - %s\n", i+1, libro.Titulo, libro.Autores)
-	}
-
-	fmt.Print("Elige el número del libro para ver más opciones o presiona Enter para volver: ")
-	numeroLibroStr, err := reader.ReadString('\n')
-	if err != nil {
-		fmt.Println("Error al leer la entrada:", err)
-		return
-	}
-	numeroLibroStr = strings.TrimSpace(numeroLibroStr)
-	if numeroLibroStr == "" {
-		return
-	}
-
-	numeroLibro, err := strconv.Atoi(numeroLibroStr)
-	if err != nil || numeroLibro < 1 || numeroLibro > len(librosEncontrados) {
-		fmt.Println("Número de libro no válido. Por favor, intenta de nuevo.")
-		return
-	}
-
-	libroElegido := librosEncontrados[numeroLibro-1]
-	mostrarMenuLibro(reader, db, usuarioID, libroElegido.ID)
-}
-
-func mostrarMenuLibro(reader *bufio.Reader, db *sql.DB, usuarioID, libroID int) {
-	for {
-		fmt.Println("Por favor, elige una opción:")
-		fmt.Println("1. Leer libro")
-		fmt.Println("2. Agregar a favoritos")
-		fmt.Println("3. Ver reseñas")
-		fmt.Println("4. Agregar reseña")
-		fmt.Println("5. Volver")
-
-		input, err := reader.ReadString('\n')
+		usuario, err := autenticacion.IniciarSesion(usuarioRepo, credentials.CorreoElectronico, credentials.Contraseña)
 		if err != nil {
-			fmt.Println("Error al leer la entrada:", err)
-			continue
-		}
-		input = strings.TrimSpace(input)
-
-		switch input {
-		case "1":
-			rutaPdf, err := lector_libros.ObtenerRutaPdf(db, libroID)
-			if err != nil {
-				fmt.Printf("Error al obtener la ruta del PDF: %v\n", err)
-				continue
-			}
-			err = lector_libros.LeerLibro(rutaPdf)
-			if err != nil {
-				fmt.Printf("Error al leer el libro: %v\n", err)
-			}
-		case "2":
-			err := favoritos_libros.AgregarLibroAFavoritos(db, usuarioID, libroID)
-			if err != nil {
-				fmt.Printf("Error al agregar libro a favoritos: %v\n", err)
-			} else {
-				fmt.Println("Libro agregado a favoritos.")
-			}
-		case "3":
-			verReseñas(db, libroID)
-		case "4":
-			agregarReseña(reader, db, usuarioID, libroID)
-		case "5":
+			c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 			return
-		default:
-			fmt.Println("Opción no válida. Por favor, elige una opción del 1 al 5.")
 		}
-	}
-}
+		c.JSON(http.StatusOK, usuario)
+	})
 
-func verFavoritos(reader *bufio.Reader, db *sql.DB, usuarioID int) {
-	favoritos, err := favoritos_libros.ListarFavoritos(db, usuarioID)
-	if err != nil {
-		fmt.Printf("Error al obtener lista de favoritos: %v\n", err)
-		return
-	}
+	router.POST("/register", func(c *gin.Context) {
+		var credentials autenticacion.Credentials
+		if err := c.ShouldBindJSON(&credentials); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Datos inválidos"})
+			return
+		}
+		err := autenticacion.Registrarse(usuarioRepo, credentials.Nombre, credentials.CorreoElectronico, credentials.Contraseña)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{"message": "Usuario registrado con éxito"})
+	})
 
-	if len(favoritos) == 0 {
-		fmt.Println("No tienes libros favoritos.")
-		return
-	}
+	router.GET("/books", func(c *gin.Context) {
+		termino := c.Query("search")
+		libros, err := buscar_libros.BuscarLibros(db, termino)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+		c.JSON(http.StatusOK, libros)
+	})
 
-	for i, favorito := range favoritos {
-		fmt.Printf("%d. %s - %s\n", i+1, favorito.Titulo, favorito.Autor)
-	}
+	router.GET("/favorites/:userID", func(c *gin.Context) {
+		usuarioID := c.Param("userID")
+		favoritos, err := favoritos_libros.ListarFavoritos(db, usuarioID)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+		c.JSON(http.StatusOK, favoritos)
+	})
 
-	fmt.Print("Elige el número del libro para ver más opciones o presiona Enter para volver: ")
-	numeroLibroStr, err := reader.ReadString('\n')
-	if err != nil {
-		fmt.Println("Error al leer la entrada:", err)
-		return
-	}
-	numeroLibroStr = strings.TrimSpace(numeroLibroStr)
-	if numeroLibroStr == "" {
-		return
-	}
+	router.POST("/favorites", func(c *gin.Context) {
+		var favorito favoritos_libros.Favorito
+		if err := c.ShouldBindJSON(&favorito); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Datos inválidos"})
+			return
+		}
+		err := favoritos_libros.AgregarLibroAFavoritos(db, favorito.UsuarioID, favorito.LibroID)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{"message": "Libro agregado a favoritos"})
+	})
 
-	numeroLibro, err := strconv.Atoi(numeroLibroStr)
-	if err != nil || numeroLibro < 1 || numeroLibro > len(favoritos) {
-		fmt.Println("Número de libro no válido. Por favor, intenta de nuevo.")
-		return
-	}
+	router.GET("/reviews/:bookID", func(c *gin.Context) {
+		libroID := c.Param("bookID")
+		reseñas, err := resenas_libros.ListarReseñas(db, libroID)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+		c.JSON(http.StatusOK, reseñas)
+	})
 
-	libroElegido := favoritos[numeroLibro-1]
-	mostrarMenuLibro(reader, db, usuarioID, libroElegido.LibroID)
-}
+	router.POST("/reviews", func(c *gin.Context) {
+		var reseña resenas_libros.Reseña
+		if err := c.ShouldBindJSON(&reseña); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Datos inválidos"})
+			return
+		}
+		err := resenas_libros.InsertarReseña(db, reseña.UsuarioID, reseña.LibroID, reseña.Calificacion, reseña.Texto)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{"message": "Reseña agregada con éxito"})
+	})
 
-func agregarReseña(reader *bufio.Reader, db *sql.DB, usuarioID, libroID int) {
-	fmt.Print("Ingresa el título de tu reseña: ")
-	titulo, err := reader.ReadString('\n')
-	if err != nil {
-		fmt.Println("Error al leer la entrada:", err)
-		return
-	}
-	titulo = strings.TrimSpace(titulo)
+	router.GET("/read/:bookID", func(c *gin.Context) {
+		libroID, err := strconv.Atoi(c.Param("bookID"))
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "ID de libro inválido"})
+			return
+		}
+		libro, err := lector_libros.LeerLibro(db, libroID)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+		c.JSON(http.StatusOK, libro)
+	})
 
-	fmt.Print("Ingresa el contenido de tu reseña: ")
-	contenido, err := reader.ReadString('\n')
-	if err != nil {
-		fmt.Println("Error al leer la entrada:", err)
-		return
-	}
-	contenido = strings.TrimSpace(contenido)
-
-	if titulo == "" || contenido == "" {
-		fmt.Println("El título y el contenido de la reseña no pueden estar vacíos.")
-		return
-	}
-
-	// Aquí puedes añadir la lógica para obtener la calificación del usuario si es necesario.
-	// Por ahora, estableceremos una calificación fija (por ejemplo, 5)
-	calificacion := 5
-
-	err = resenas_libros.InsertarReseña(db, usuarioID, libroID, calificacion, contenido)
-	if err != nil {
-		fmt.Printf("Error al agregar reseña: %v\n", err)
-	} else {
-		fmt.Println("Reseña agregada con éxito.")
-	}
-}
-func verReseñas(db *sql.DB, libroID int) {
-	reseñas, err := resenas_libros.ListarReseñas(db, libroID)
-	if err != nil {
-		fmt.Printf("Error al obtener las reseñas: %v\n", err)
-		return
-	}
-
-	if len(reseñas) == 0 {
-		fmt.Println("No hay reseñas para este libro.")
-		return
-	}
-
-	for _, reseña := range reseñas {
-		fmt.Printf("Usuario %d - Calificación: %d\n", reseña.UsuarioID, reseña.Calificacion)
-		fmt.Printf("Fecha: %s\n", reseña.Fecha.Format("2006-01-02"))
-		fmt.Printf("Texto: %s\n", reseña.Texto)
-		fmt.Println("-------------------------------")
-	}
+	router.Run(":8080")
 }

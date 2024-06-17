@@ -3,36 +3,25 @@ package lector_libros
 import (
 	"database/sql"
 	"fmt"
-	"os"
-	"os/exec"
 )
 
-// ObtenerRutaPdf obtiene la ruta del archivo PDF de un libro dado su ID.
-// Consulta la base de datos para obtener la ruta.
-func ObtenerRutaPdf(db *sql.DB, libroID int) (string, error) {
-	var rutaPdf string
-	err := db.QueryRow("SELECT ruta_pdf FROM Libros WHERE id = ?", libroID).Scan(&rutaPdf)
-	if err != nil {
-		return "", fmt.Errorf("error al obtener ruta del PDF: %v", err)
-	}
-	return rutaPdf, nil
+// Libro representa un libro completo que puede ser leído por el usuario.
+type Libro struct {
+	ID             int    `json:"id"`
+	Titulo         string `json:"titulo"`
+	RutaPDF        string `json:"ruta_pdf"`
+	AñoPublicacion int    `json:"año_publicacion"`
 }
 
-// LeerLibro abre un archivo PDF utilizando el navegador Microsoft Edge.
-// Verifica si el archivo existe antes de intentar abrirlo.
-func LeerLibro(rutaPdf string) error {
-	// Verificar si el archivo existe
-	if _, err := os.Stat(rutaPdf); os.IsNotExist(err) {
-		return fmt.Errorf("el archivo %s no existe", rutaPdf)
-	}
+// LeerLibro permite al usuario obtener la URL del PDF del libro.
+func LeerLibro(db *sql.DB, libroID int) (*Libro, error) {
+	var libro Libro
 
-	// Comando para abrir el archivo PDF en Microsoft Edge
-	cmd := exec.Command(`C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe`, rutaPdf)
-	err := cmd.Run()
+	// Consultar la base de datos para obtener la ruta del PDF del libro
+	err := db.QueryRow("SELECT id, titulo, ruta_pdf, año_publicacion FROM Libros WHERE id = ?", libroID).Scan(&libro.ID, &libro.Titulo, &libro.RutaPDF, &libro.AñoPublicacion)
 	if err != nil {
-		return fmt.Errorf("no se pudo abrir el archivo %s: %v", rutaPdf, err)
+		return nil, fmt.Errorf("error al obtener el libro: %v", err)
 	}
 
-	fmt.Printf("Abriendo el libro %s...\n", rutaPdf)
-	return nil
+	return &libro, nil
 }

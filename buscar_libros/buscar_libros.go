@@ -6,11 +6,11 @@ import (
 
 // Libro representa un libro en el sistema.
 type Libro struct {
-	ID             int
-	Titulo         string
-	Autores        string
-	ISBN           string
-	AñoPublicacion int
+	ID             int    `json:"id"`
+	Titulo         string `json:"titulo"`
+	Autores        string `json:"autores"`
+	ISBN           string `json:"isbn"`
+	AñoPublicacion int    `json:"anio_publicacion"`
 }
 
 // BuscarLibros busca libros en la base de datos que coincidan con el término de búsqueda.
@@ -23,8 +23,9 @@ func BuscarLibros(db *sql.DB, termino string) ([]Libro, error) {
 		JOIN Libros_Autores ON Libros.id = Libros_Autores.libro_id 
 		JOIN Autores ON Libros_Autores.autor_id = Autores.id 
 		WHERE Libros.titulo LIKE ? OR Autores.nombre LIKE ?
-		GROUP BY Libros.id
+		GROUP BY Libros.id, Libros.titulo, Libros.isbn, Libros.año_publicacion;
 	`
+
 	rows, err := db.Query(query, "%"+termino+"%", "%"+termino+"%")
 	if err != nil {
 		return nil, err
@@ -32,14 +33,17 @@ func BuscarLibros(db *sql.DB, termino string) ([]Libro, error) {
 	defer rows.Close()
 
 	var libros []Libro
-	// Escanear los resultados y agregarlos a la lista de libros
 	for rows.Next() {
 		var libro Libro
-		err := rows.Scan(&libro.ID, &libro.Titulo, &libro.Autores, &libro.ISBN, &libro.AñoPublicacion)
-		if err != nil {
+		var autores string
+		if err := rows.Scan(&libro.ID, &libro.Titulo, &autores, &libro.ISBN, &libro.AñoPublicacion); err != nil {
 			return nil, err
 		}
+		libro.Autores = autores
 		libros = append(libros, libro)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
 	}
 
 	return libros, nil

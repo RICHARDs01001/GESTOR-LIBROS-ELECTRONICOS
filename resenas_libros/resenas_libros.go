@@ -2,52 +2,44 @@ package resenas_libros
 
 import (
 	"database/sql"
-	"fmt"
 	"time"
 )
 
-// Reseña representa una reseña de un libro.
+// Reseña representa una reseña de un libro realizada por un usuario.
 type Reseña struct {
-	ID           int
-	UsuarioID    int
-	LibroID      int
-	Calificacion int
-	Texto        string
-	Fecha        time.Time
+	ID           int       `json:"id"`
+	UsuarioID    int       `json:"usuario_id"`
+	LibroID      int       `json:"libro_id"`
+	Calificacion int       `json:"calificacion"`
+	Texto        string    `json:"texto"`
+	Fecha        time.Time `json:"fecha"`
 }
 
-// InsertarReseña inserta una nueva reseña en la base de datos.
-func InsertarReseña(db *sql.DB, usuarioID, libroID, calificacion int, texto string) error {
-	fecha := time.Now().Format("2006-01-02")
-	query := "INSERT INTO Reseñas (usuario_id, libro_id, calificacion, texto, fecha) VALUES (?, ?, ?, ?, ?)"
-	_, err := db.Exec(query, usuarioID, libroID, calificacion, texto, fecha)
+// ListarReseñas devuelve una lista de reseñas de un libro.
+func ListarReseñas(db *sql.DB, libroID string) ([]Reseña, error) {
+	rows, err := db.Query("SELECT id, usuario_id, libro_id, calificacion, texto, fecha FROM Reseñas WHERE libro_id = ?", libroID)
 	if err != nil {
-		return fmt.Errorf("error al insertar la reseña: %v", err)
-	}
-	return nil
-}
-
-// ListarReseñas lista todas las reseñas de un libro.
-func ListarReseñas(db *sql.DB, libroID int) ([]Reseña, error) {
-	query := "SELECT id, usuario_id, libro_id, calificacion, texto, fecha FROM Reseñas WHERE libro_id = ?"
-	rows, err := db.Query(query, libroID)
-	if err != nil {
-		return nil, fmt.Errorf("error al listar las reseñas: %v", err)
+		return nil, err
 	}
 	defer rows.Close()
 
 	var reseñas []Reseña
 	for rows.Next() {
 		var reseña Reseña
-		var fecha string
-		if err := rows.Scan(&reseña.ID, &reseña.UsuarioID, &reseña.LibroID, &reseña.Calificacion, &reseña.Texto, &fecha); err != nil {
-			return nil, fmt.Errorf("error al escanear la fila de reseña: %v", err)
+		if err := rows.Scan(&reseña.ID, &reseña.UsuarioID, &reseña.LibroID, &reseña.Calificacion, &reseña.Texto, &reseña.Fecha); err != nil {
+			return nil, err
 		}
-		reseña.Fecha, _ = time.Parse("2006-01-02", fecha)
 		reseñas = append(reseñas, reseña)
 	}
 	if err := rows.Err(); err != nil {
-		return nil, fmt.Errorf("error al iterar sobre las filas de reseña: %v", err)
+		return nil, err
 	}
+
 	return reseñas, nil
+}
+
+// InsertarReseña inserta una nueva reseña en la base de datos.
+func InsertarReseña(db *sql.DB, usuarioID, libroID, calificacion int, texto string) error {
+	_, err := db.Exec("INSERT INTO Reseñas (usuario_id, libro_id, calificacion, texto, fecha) VALUES (?, ?, ?, ?, ?)", usuarioID, libroID, calificacion, texto, time.Now())
+	return err
 }
