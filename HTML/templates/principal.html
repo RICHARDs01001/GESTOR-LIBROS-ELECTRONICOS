@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CODE.Libro</title>
+    <style>
+        @font-face {
+            font-family: 'Minecraftia';
+            src: url("../statics/fonts/Minecraftia-Regular.ttf");
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #000; /* Fondo negro */
+            color: #fff; /* Texto blanco */
+            text-align: center; /* Centramos todo el texto */
+        }
+
+        .header {
+            font-family: 'Minecraftia', sans-serif;
+            background-color: #910534; /* Color fucsia morado */
+            color: white;
+            padding: 100px 120px; /* Aumentamos el padding para hacer la sección más gruesa */
+            overflow: hidden;
+            position: relative; /* Agregamos posición relativa al contenedor */
+            width: 100%; /* Abarca todo el ancho de la página */
+        }
+
+        .header a.logo {
+            font-size: 120px; /* Aumentamos el tamaño de la fuente para hacer el título más grande */
+            font-weight: bold;
+            color: white; /* Mantenemos el color de la fuente en blanco */
+            text-decoration: none; /* Quitamos la línea debajo del texto */
+        }
+
+        .header a.logo span {
+            font-size: 50px; /* Hacemos que "Libro" sea un poco más pequeño */
+        }
+
+        .header a.logo:hover {
+            color: white; /* El título no cambia de color al pasar el mouse sobre él */
+        }
+
+        .content {
+            padding: 20px;
+        }
+
+        .buttons {
+            display: flex; /* Usamos flexbox para alinear los botones */
+            justify-content: center; /* Centramos los botones */
+            gap: 10px; /* Espacio entre los botones */
+        }
+
+        .buttons button {
+            background-color: #3b5998; /* Color azul de Facebook */
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .buttons button:hover {
+            background-color: #ddd;
+            color: black;
+        }
+
+        /* Estilo para la imagen */
+        .logo-programacion {
+            position: absolute;
+            width: 200px;
+            opacity: 0.3; /* Ajusta el valor según la transparencia deseada (0.0 a 1.0) */
+            right: 10px;
+            /* Nueva imagen sobre el título */
+            top: 100px; /* Ajusta la posición vertical según tu diseño */
+        }
+
+        /* Estilo para las imágenes en el footer */
+        .footer-logo {
+            position: absolute;
+            width: 200px;
+            opacity: 0.3; /* Ajusta el valor según la transparencia deseada (0.0 a 1.0) */
+            right: 10px;
+            bottom: 10px; /* Ajusta la posición vertical según tu diseño */
+        }
+
+        /* Estilos para el modal */
+        .modal {
+            display: none; /* El modal está oculto por defecto */
+            position: fixed; /* Posición fija */
+            z-index: 1; /* Sitúa el modal por encima de todo */
+            left: 0;
+            top: 0;
+            width: 100%; /* Ancho completo */
+            height: 100%; /* Altura completa */
+            overflow: auto; /* Habilita el scroll si es necesario */
+            background-color: rgb(0,0,0); /* Color de fondo */
+            background-color: rgba(0,0,0,0.4); /* Color de fondo con opacidad */
+        }
+
+        /* Estilos para el contenido del modal */
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto; /* 5% desde arriba y centrado */
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%; /* Ancho del modal */
+        }
+
+        /* Estilos para el botón de cerrar */
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        /* Estilos para la barra de búsqueda */
+        .search-bar {
+            margin: 20px auto;
+            width: 50%;
+        }
+
+        .search-bar input[type="text"] {
+            width: 80%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .search-bar input[type="submit"] {
+            width: 18%;
+            background-color: #3b5998;
+            color: white;
+            cursor: pointer;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .search-bar input[type="submit"]:hover {
+            background-color: #304d6d;
+        }
+
+        /* Estilos para los libros */
+        .book {
+            background-color: black;
+            margin: 10px;
+            width: 200px;
+            height: auto;
+            border: 5px solid #820042; /* Color de borde específico */
+            box-sizing: border-box;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .book img {
+            width: 100%;
+            height: auto;
+            transition: transform 0.5s ease;
+        }
+
+        .book:hover img {
+            transform: scale(1.2);
+        }
+
+        .book .title {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            text-align: center;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+
+        /* Estilos para el menú de opciones del libro */
+        .book-options {
+            display: none;
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            text-align: center;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+
+        .book-options a {
+            color: white;
+            text-decoration: none;
+            margin: 0 10px;
+        }
+
+        .book-options a:hover {
+            color: #ddd;
+        }
+
+        /* Muestra el menú de opciones cuando se pasa el mouse sobre el libro */
+        .book:hover .book-options {
+            display: block;
+        }
+
+        /* Estilo para la cuadrícula */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            grid-gap: 20px;
+            justify-content: center; /* Alinea la cuadrícula en el centro */
+        }
+
+        /* Estilo para el modal de reseñas */
+        .review-chat {
+            height: 300px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+            background-color: #f0f0f0;
+            color: #000;
+        }
+
+        .review-input {
+            display: flex;
+            margin-top: 10px;
+        }
+
+        .review-input input[type="text"] {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .review-input input[type="number"] {
+            width: 80px;
+            margin-left: 10px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .review-input input[type="submit"] {
+            width: 100px;
+            margin-left: 10px;
+            background-color: #3b5998;
+            color: white;
+            cursor: pointer;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .review-input input[type="submit"]:hover {
+            background-color: #304d6d;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="#default" class="logo">Code.<span>Libro</span></a>
+    </div>
+    <div class="content">
+        <h1>Bienvenido a CodeLibro</h1>
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="Buscar libros...">
+            <input type="submit" value="Buscar" id="searchButton">
+        </div>
+        <div class="buttons">
+            <button onclick="loadFavorites()">Ver Favoritos</button>
+            <button onclick="logout()">Salir</button>
+        </div>
+
+        <div class="grid-container" id="bookGrid">
+            <div class="book">
+                <img src="../statics/img/1.jpeg
+                " alt="Portada del libro 1">
+                <div class="book-options">
+        <ul>
+            <li><a href="../LIBROS/1.pdf" target="_blank">Leer libro</a></li>
+            <li><a href="#">Ver reseñas</a></li>
+            <li><a href="#">+ Favoritos</a></li>
+        </ul>
+                </div>
+            </div>
+            <div class="book">
+                <img src="../statics/img/2.jpeg
+                " alt="Portada del libro 2">
+                <div class="book-options">
+        <ul>
+            <li><a href="/read/2" target="_blank">Leer libro</a></li>
+            <li><a href="#">Ver reseñas</a></li>
+            <li><a href="#">+ Favoritos</a></li>
+        </ul>
+                </div>
+            </div>
+            <div class="book">
+                <img src="../statics/img/3.jpeg
+                " alt="Portada del libro 3">
+                <div class="book-options">
+        <ul>
+            <li><a href="/read/3" target="_blank">Leer libro</a></li>
+            <li><a href="#">Ver reseñas</a></li>
+            <li><a href="#">+ Favoritos</a></li>
+        </ul>
+                </div>
+            </div>
+            <div class="book">
+                <img src="../statics/img/4.jpeg
+                " alt="Portada del libro 4">
+                <div class="book-options">
+        <ul>
+            <li><a href="/read/4" target="_blank">Leer libro</a></li>
+            <li><a href="#">Ver reseñas</a></li>
+            <li><a href="#">+ Favoritos</a></li>
+        </ul>
+                </div>
+            </div>
+            <div class="book">
+                <img src="../statics/img/5.jpeg
+                " alt="Portada del libro 5">
+                <div class="book-options">
+        <ul>
+            <li><a href="/read/5" target="_blank">Leer libro</a></li>
+            <li><a href="#">Ver reseñas</a></li>
+            <li><a href="#">+ Favoritos</a></li>
+        </ul>
+                </div>
+            </div>
+            <div class="book">
+                <img src="../statics/imG/6.jpeg
+                " alt="Portada del libro 6">
+                <div class="book-options">
+        <ul>
+            <li><a href="/read/6" target="_blank">Leer libro</a></li>
+            <li><a href="#">Ver reseñas</a></li>
+            <li><a href="#">+ Favoritos</a></li>
+        </ul>
+                </div>
+            </div>
+            <div class="book">
+                <img src="../statics/img/7.jpeg
+                " alt="Portada del libro 7">
+                <div class="book-options">
+        <ul>
+            <li><a href="/read/7" target="_blank">Leer libro</a></li>
+            <li><a href="#">Ver reseñas</a></li>
+            <li><a href="#">+ Favoritos</a></li>
+        </ul>
+                </div>
+            </div>
+            <div class="book">
+                <img src="../statics/img/8.jpeg
+                " alt="Portada del libro 8">
+                <div class="book-options">
+        <ul>
+            <li><a href="/read/8" target="_blank">Leer libro</a></li>
+            <li><a href="#">Ver reseñas</a></li>
+            <li><a href="#">+ Favoritos</a></li>
+        </ul>
+                </div>
+            </div>
+            <div class="book">
+                <img src="../statics/img/9.jpeg
+                " alt="Portada del libro 9">
+                <div class="book-options">
+        <ul>
+            <li><a href="/read/9" target="_blank">Leer libro</a></li>
+            <li><a href="#">Ver reseñas</a></li>
+            <li><a href="#">+ Favoritos</a></li>
+        </ul>
+                </div>
+            </div>
+            <div class="book">
+                <img src="../statics/img/10.jpeg
+                " alt="Portada del libro 10">
+                <div class="book-options">
+        <ul>
+            <li><a href="/read/10" target="_blank">Leer libro</a></li>
+            <li><a href="#">Ver reseñas</a></li>
+            <li><a href="#">+ Favoritos</a></li>
+        </ul>
+                </div>
+            </div>
+            <div class="book">
+                <img src="../statics/img/11.jpeg
+                " alt="Portada del libro 11">
+                <div class="book-options">
+        <ul>
+            <li><a href="/read/11" target="_blank">Leer libro</a></li>
+            <li><a href="#">Ver reseñas</a></li>
+            <li><a href="#">+ Favoritos</a></li>
+        </ul>
+                </div>
+            </div>
+            <div class="book">
+                <img src="../statics/img/12.jpeg
+                " alt="Portada del libro 12">
+                <div class="book-options">
+        <ul>
+            <li><a href="/read/12" target="_blank">Leer libro</a></li>
+            <li><a href="#">Ver reseñas</a></li>
+            <li><a href="#">+ Favoritos</a></li>
+        </ul>
+                </div>
+            </div>
+            <div class="book">
+                <img src="../statics/img/13.jpeg
+                " alt="Portada del libro 13">
+                <div class="book-options">
+        <ul>
+            <li><a href="/read/13" target="_blank">Leer libro</a></li>
+            <li><a href="#">Ver reseñas</a></li>
+            <li><a href="#">+ Favoritos</a></li>
+        </ul>
+                </div>
+            </div>
+            <div class="book">
+                <img src="../statics/img/14.jpeg
+                " alt="Portada del libro 14">
+                <div class="book-options">
+        <ul>
+            <li><a href="/read/14" target="_blank">Leer libro</a></li>
+            <li><a href="#">Ver reseñas</a></li>
+            <li><a href="#">+ Favoritos</a></li>
+        </ul>
+                </div>
+            </div>
+            <div class="book">
+                <img src="../statics/img/15.jpeg
+                " alt="Portada del libro 15">
+                <div class="book-options">
+        <ul>
+            <li><a href="/read/15" target="_blank">Leer libro</a></li>
+            <li><a href="#">Ver reseñas</a></li>
+            <li><a href="#">+ Favoritos</a></li>
+        </ul>
+                </div>
+            </div>
+            <div class="book">
+                <img src="../statics/img/16.jpeg
+                " alt="Portada del libro 16">
+                <div class="book-options">
+        <ul>
+            <li><a href="/read/16" target="_blank">Leer libro</a></li>
+            <li><a href="#">Ver reseñas</a></li>
+            <li><a href="#">+ Favoritos</a></li>
+        </ul>
+                </div>
+            </div>
+            <div class="book">
+                <img src="../statics/img/17.jpeg
+                " alt="Portada del libro 17">
+                <div class="book-options">
+        <ul>
+            <li><a href="/read/17" target="_blank">Leer libro</a></li>
+            <li><a href="#">Ver reseñas</a></li>
+            <li><a href="#">+ Favoritos</a></li>
+        </ul>
+                </div>
+            </div>
+            <div class="book">
+                <img src="../statics/img/18.jpeg
+                " alt="Portada del libro 18">
+                <div class="book-options">
+        <ul>
+            <li><a href="/read/18" target="_blank">Leer libro</a></li>
+            <li><a href="#">Ver reseñas</a></li>
+            <li><a href="#">+ Favoritos</a></li>
+        </ul>
+                </div>
+            </div>
+            <div class="book">
+                <img src="../statics/img/19.jpeg
+                " alt="Portada del libro 19">
+                <div class="book-options">
+        <ul>
+            <li><a href="/read/19" target="_blank">Leer libro</a></li>
+            <li><a href="#">Ver reseñas</a></li>
+            <li><a href="#">+ Favoritos</a></li>
+        </ul>
+                </div>
+            </div>
+            <div class="book">
+                <img src="../statics/img/20.jpeg
+                " alt="Portada del libro 20">
+                <div class="book-options">
+        <ul>
+            <li><a href="/read/20" target="_blank">Leer libro</a></li>
+            <li><a href="#">Ver reseñas</a></li>
+            <li><a href="#">+ Favoritos</a></li>
+        </ul>
+                </div>
+            </div>
+            <div class="book">
+                <img src="../statics/img/21.jpeg
+                " alt="Portada del libro 21">
+                <div class="book-options">
+        <ul>
+            <li><a href="/read/21" target="_blank">Leer libro</a></li>
+            <li><a href="#">Ver reseñas</a></li>
+            <li><a href="#">+ Favoritos</a></li>
+        </ul>
+                </div>
+            </div>
+            <div class="book">
+                <img src="../statics/img/22.jpeg
+                " alt="Portada del libro 22">
+                <div class="book-options">
+        <ul>
+            <li><a href="/read/22" target="_blank">Leer libro</a></li>
+            <li><a href="#">Ver reseñas</a></li>
+            <li><a href="#">+ Favoritos</a></li>
+        </ul>
+                </div>
+            </div>
+            <div class="book">
+                <img src="../statics/img/23.jpeg
+                " alt="Portada del libro 23">
+                <div class="book-options">
+        <ul>
+            <li><a href="/read/23" target="_blank">Leer libro</a></li>
+            <li><a href="#">Ver reseñas</a></li>
+            <li><a href="#">+ Favoritos</a></li>
+        </ul>
+                </div>
+            </div>
+            <div class="book">
+                <img src="../statics/img/24.jpeg
+                " alt="Portada del libro 24">
+                <div class="book-options">
+        <ul>
+            <li><a href="/read/24" target="_blank">Leer libro</a></li>
+            <li><a href="#">Ver reseñas</a></li>
+            <li><a href="#">+ Favoritos</a></li>
+        </ul>
+                </div>
+            </div>
+            <div class="book">
+                <img src="../statics/img/25.jpeg
+                " alt="Portada del libro 25">
+                <div class="book-options">
+        <ul>
+            <li><a href="/read/25" target="_blank">Leer libro</a></li>
+            <li><a href="#">Ver reseñas</a></li>
+            <li><a href="#">+ Favoritos</a></li>
+        </ul>
+                </div>
+            </div>
+            <div class="book">
+                <img src="../statics/img/26.jpeg
+                " alt="Portada del libro 26">
+                <div class="book-options">
+        <ul>
+            <li><a href="/read/26" target="_blank">Leer libro</a></li>
+            <li><a href="#">Ver reseñas</a></li>
+            <li><a href="#">+ Favoritos</a></li>
+        </ul>
+                </div>
+            </div>
+            <div class="book">
+                <img src="../statics/img/27.jpeg
+                " alt="Portada del libro 27">
+                <div class="book-options">
+        <ul>
+            <li><a href="/read/27" target="_blank">Leer libro</a></li>
+            <li><a href="#">Ver reseñas</a></li>
+            <li><a href="#">+ Favoritos</a></li>
+        </ul>
+                </div>
+            </div>
+            <div class="book">
+                <img src="../statics/img/28.jpeg
+                " alt="Portada del libro 28">
+                <div class="book-options">
+        <ul>
+            <li><a href="/read/28" target="_blank">Leer libro</a></li>
+            <li><a href="#">Ver reseñas</a></li>
+            <li><a href="#">+ Favoritos</a></li>
+        </ul>
+                </div>
+            </div>
+            <div class="book">
+                <img src="../statics/img/29.jpeg
+                " alt="Portada del libro 29">
+                <div class="book-options">
+        <ul>
+            <li><a href="/read/29" target="_blank">Leer libro</a></li>
+            <li><a href="#">Ver reseñas</a></li>
+            <li><a href="#">+ Favoritos</a></li>
+        </ul>
+                </div>
+            </div>
+            <div class="book">
+                <img src="../statics/img/30.jpeg
+                " alt="Portada del libro 30">
+                <div class="book-options">
+        <ul>
+            <li><a href="/read/30" target="_blank">Leer libro</a></li>
+            <li><a href="#">Ver reseñas</a></li>
+            <li><a href="#">+ Favoritos</a></li>
+        </ul>
+                </div>
+            </div>
+            <div class="book">
+                <img src="../statics/img/31.jpeg
+                " alt="Portada del libro 31">
+                <div class="book-options">
+        <ul>
+            <li><a href="/read/31" target="_blank">Leer libro</a></li>
+            <li><a href="#">Ver reseñas</a></li>
+            <li><a href="#">+ Favoritos</a></li>
+        </ul>
+                </div>
+            </div>
+            <div class="book">
+                <img src="../statics/img/32.jpeg
+                " alt="Portada del libro 32">
+                <div class="book-options">
+        <ul>
+            <li><a href="/read/32" target="_blank">Leer libro</a></li>
+            <li><a href="#">Ver reseñas</a></li>
+            <li><a href="#">+ Favoritos</a></li>
+        </ul>
+                </div>
+            </div>
+            <div class="book">
+                <img src="../statics/img/33.jpeg
+                " alt="Portada del libro 33">
+                <div class="book-options">
+        <ul>
+            <li><a href="/read/33" target="_blank">Leer libro</a></li>
+            <li><a href="#">Ver reseñas</a></li>
+            <li><a href="#">+ Favoritos</a></li>
+        </ul>
+                </div>
+            </div>
+            <div class="book">
+                <img src="../statics/img/34.jpeg
+                " alt="Portada del libro 34">
+                <div class="book-options">
+        <ul>
+            <li><a href="/read/34" target="_blank">Leer libro</a></li>
+            <li><a href="#">Ver reseñas</a></li>
+            <li><a href="#">+ Favoritos</a></li>
+        </ul>
+                </div>
+            </div>
+            <div class="book">
+                <img src="../statics/img/35.jpeg
+                " alt="Portada del libro 35">
+                <div class="book-options">
+        <ul>
+            <li><a href="/read/35" target="_blank">Leer libro</a></li>
+            <li><a href="#">Ver reseñas</a></li>
+            <li><a href="#">+ Favoritos</a></li>
+        </ul>
+                </div>
+            </div>
+            <div class="book">
+                <img src="../statics/img/36.jpeg
+                " alt="Portada del libro 36">
+                <div class="book-options">
+        <ul>
+            <li><a href="/read/36" target="_blank">Leer libro</a></li>
+            <li><a href="#">Ver reseñas</a></li>
+            <li><a href="#">+ Favoritos</a></li>
+        </ul>
+                </div>
+            </div>
+            <div class="book">
+                <img src="../statics/img/37.jpeg
+                " alt="Portada del libro 37">
+                <div class="book-options">
+        <ul>
+            <li><a href="/read/37" target="_blank">Leer libro</a></li>
+            <li><a href="#">Ver reseñas</a></li>
+            <li><a href="#">+ Favoritos</a></li>
+        </ul>
+                </div>
+            </div>
+            <div class="book">
+                <img src="../statics/img/38.jpeg
+                " alt="Portada del libro 38">
+                <div class="book-options">
+        <ul>
+            <li><a href="/read/38" target="_blank">Leer libro</a></li>
+            <li><a href="#">Ver reseñas</a></li>
+            <li><a href="#">+ Favoritos</a></li>
+        </ul>
+                </div>
+            </div>
+            <div class="book">
+                <img src="../statics/img/39.png
+                " alt="Portada del libro 39">
+                <div class="book-options">
+        <ul>
+            <li><a href="/read/39" target="_blank">Leer libro</a></li>
+            <li><a href="#">Ver reseñas</a></li>
+            <li><a href="#">+ Favoritos</a></li>
+        </ul>
+                </div>
+            </div>
+            <div class="book">
+                <img src="../statics/img/40.jpeg
+                " alt="Portada del libro 40">
+                <div class="book-options">
+        <ul>
+            <li><a href="/read/40" target="_blank">Leer libro</a></li>
+            <li><a href="#">Ver reseñas</a></li>
+            <li><a href="#">+ Favoritos</a></li>
+        </ul>
+                </div>
+            </div>
+            <div class="book">
+                <img src="../statics/img/41.jpeg
+                " alt="Portada del libro 41">
+                <div class="book-options">
+        <ul>
+            <li><a href="/read/41" target="_blank">Leer libro</a></li>
+            <li><a href="#">Ver reseñas</a></li>
+            <li><a href="#">+ Favoritos</a></li>
+        </ul>
+                </div>
+            </div>
+            <div class="book">
+                <img src="../statics/img/42.jpeg
+                " alt="Portada del libro 42">
+                <div class="book-options">
+        <ul>
+            <li><a href="/read/42" target="_blank">Leer libro</a></li>
+            <li><a href="#">Ver reseñas</a></li>
+            <li><a href="#">+ Favoritos</a></li>
+        </ul>
+                </div>
+    </body>
+    </html>
+
+    <!-- Modal para ver y agregar reseñas -->
+    <div id="reviewsModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('reviewsModal')">&times;</span>
+            <h2>Reseñas del Libro</h2>
+            <div class="review-chat" id="reviewsContent"></div>
+            <h3>Agregar Reseña</h3>
+            <form id="addReviewForm" class="review-input">
+                <input type="text" id="reviewText" placeholder="Escribe tu reseña aquí..." required>
+                <input type="number" id="reviewRating" placeholder="Calificación (1-5)" min="1" max="5" required>
+                <input type="submit" value="Agregar Reseña">
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal para ver favoritos -->
+    <div id="favoritesModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('favoritesModal')">&times;</span>
+            <h2>Mis Favoritos</h2>
+            <div id="favoritesContent"></div>
+        </div>
+    </div>
+
+    <script>
+        // Funciones para abrir y cerrar el modal
+        function openModal(modalId) {
+            document.getElementById(modalId).style.display = "block";
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = "none";
+        }
+
+        // Cargar reseñas y abrir modal de reseñas
+        function openReviewsModal(bookId) {
+            fetch(`/reviews/${bookId}`)
+                .then(response => response.json())
+                .then(data => {
+                    const reviewsContent = document.getElementById('reviewsContent');
+                    reviewsContent.innerHTML = '';
+                    data.forEach(review => {
+                        reviewsContent.innerHTML += `<p>${review.texto} - Calificación: ${review.calificacion}</p>`;
+                    });
+                    document.getElementById('addReviewForm').onsubmit = function(event) {
+                        event.preventDefault();
+                        addReview(bookId);
+                    };
+                    openModal('reviewsModal');
+                })
+                .catch(error => console.error('Error:', error));
+        }
+
+        // Agregar reseña
+        function addReview(bookId) {
+            const reviewText = document.getElementById('reviewText').value;
+            const reviewRating = document.getElementById('reviewRating').value;
+
+            fetch('/reviews', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    libro_id: bookId,
+                    texto: reviewText,
+                    calificacion: reviewRating,
+                }),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.message === 'Reseña agregada con éxito') {
+                        openReviewsModal(bookId); // Recargar las reseñas
+                    } else {
+                        alert(data.message);
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        }
+
+        // Agregar a favoritos
+        function addToFavorites(bookId) {
+            fetch('/favorites', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    libro_id: bookId,
+                }),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.message === 'Libro agregado a favoritos') {
+                        alert('Libro agregado a favoritos');
+                    } else {
+                        alert(data.message);
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        }
+
+        // Cargar favoritos y abrir modal de favoritos
+        function loadFavorites() {
+            fetch('/favorites')
+                .then(response => response.json())
+                .then(data => {
+                    const favoritesContent = document.getElementById('favoritesContent');
+                    favoritesContent.innerHTML = '';
+                    data.forEach(book => {
+                        favoritesContent.innerHTML += `<p>${book.title}</p>`;
+                    });
+                    openModal('favoritesModal');
+                })
+                .catch(error => console.error('Error:', error));
+        }
+
+        // Salir
+        function logout() {
+            window.location.href = '/';
+        }
+
+        // Búsqueda de libros
+        document.getElementById('searchButton').addEventListener('click', function() {
+            const searchTerm = document.getElementById('searchInput').value;
+            fetch(`/search?term=${searchTerm}`)
+                .then(response => response.json())
+                .then(data => {
+                    const bookGrid = document.getElementById('bookGrid');
+                    bookGrid.innerHTML = '';
+                    data.forEach(book => {
+                        bookGrid.innerHTML += `
+                            <div class="book">
+                                <img src="${book.coverImage}" alt="Portada del libro ${book.titulo}">
+                                <div class="book-options">
+                                    <ul>
+                                        <li><a href="${book.pdfPath}" target="_blank">Leer libro</a></li>
+                                        <li><a href="#" onclick="openReviewsModal(${book.id})">Ver reseñas</a></li>
+                                        <li><a href="#" onclick="addToFavorites(${book.id})">+ Favoritos</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        `;
+                    });
+                })
+                .catch(error => console.error('Error:', error));
+        });
+    </script>
+    <script src="../statics/scripts/scripts.js"></script>
+</body>
+</html>

@@ -4,37 +4,35 @@ import (
 	"database/sql"
 )
 
-// Favorito representa un libro favorito de un usuario.
 type Favorito struct {
+	ID        int `json:"id"`
 	UsuarioID int `json:"usuario_id"`
 	LibroID   int `json:"libro_id"`
 }
 
-// ListarFavoritos devuelve una lista de libros favoritos de un usuario.
-func ListarFavoritos(db *sql.DB, usuarioID string) ([]int, error) {
-	rows, err := db.Query("SELECT libro_id FROM Favoritos WHERE usuario_id = ?", usuarioID)
+func ListarFavoritos(db *sql.DB, usuarioID string) ([]Favorito, error) {
+	rows, err := db.Query("SELECT id, usuario_id, libro_id FROM Favoritos WHERE usuario_id = ?", usuarioID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	var favoritos []int
+	var favoritos []Favorito
 	for rows.Next() {
-		var libroID int
-		if err := rows.Scan(&libroID); err != nil {
+		var favorito Favorito
+		if err := rows.Scan(&favorito.ID, &favorito.UsuarioID, &favorito.LibroID); err != nil {
 			return nil, err
 		}
-		favoritos = append(favoritos, libroID)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
+		favoritos = append(favoritos, favorito)
 	}
 
 	return favoritos, nil
 }
 
-// AgregarLibroAFavoritos agrega un libro a los favoritos de un usuario.
 func AgregarLibroAFavoritos(db *sql.DB, usuarioID, libroID int) error {
 	_, err := db.Exec("INSERT INTO Favoritos (usuario_id, libro_id) VALUES (?, ?)", usuarioID, libroID)
-	return err
+	if err != nil {
+		return err
+	}
+	return nil
 }

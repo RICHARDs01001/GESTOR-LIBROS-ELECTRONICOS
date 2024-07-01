@@ -1,0 +1,206 @@
+@font-face {
+    font-family: 'Minecraftia';
+    src: url('../statics/fonts/Minecraftia-Regular.ttf');
+}
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #000; /* Fondo negro */
+    color: #fff; /* Texto blanco */
+    text-align: center; /* Centramos todo el texto */
+}
+
+.header {
+    font-family: 'Minecraftia', sans-serif;
+    background-color: #910534; /* Color fucsia morado */
+    color: white;
+    padding: 100px 120px; /* Aumentamos el padding para hacer la sección más gruesa */
+    overflow: hidden;
+    position: relative; /* Agregamos posición relativa al contenedor */
+    width: 100%; /* Abarca todo el ancho de la página */
+}
+
+.header a.logo {
+    font-size: 120px; /* Aumentamos el tamaño de la fuente para hacer el título más grande */
+    font-weight: bold;
+    color: white; /* Mantenemos el color de la fuente en blanco */
+    text-decoration: none; /* Quitamos la línea debajo del texto */
+}
+
+.header a.logo span {
+    font-size: 50px; /* Hacemos que "Libro" sea un poco más pequeño */
+}
+
+.header a.logo:hover {
+    color: white; /* El título no cambia de color al pasar el mouse sobre él */
+}
+
+.content {
+    padding: 20px;
+}
+
+.buttons {
+    display: flex; /* Usamos flexbox para alinear los botones */
+    justify-content: center; /* Centramos los botones */
+    gap: 10px; /* Espacio entre los botones */
+}
+
+.buttons a {
+    background-color: #3b5998; /* Color azul de Facebook */
+    color: white;
+    padding: 10px 20px;
+    text-decoration: none;
+    border-radius: 4px;
+}
+
+.buttons a:hover {
+    background-color: #ddd;
+    color: black;
+}
+
+/* Estilo para la imagen */
+.logo-programacion {
+    position: absolute;
+    width: 200px;
+    opacity: 0.3; /* Ajusta el valor según la transparencia deseada (0.0 a 1.0) */
+    right: 10px;
+    /* Nueva imagen sobre el título */
+    top: 100px; /* Ajusta la posición vertical según tu diseño */
+}
+
+/* Estilo para las imágenes en el footer */
+.footer-logo {
+    position: absolute;
+    width: 200px;
+    opacity: 0.3; /* Ajusta el valor según la transparencia deseada (0.0 a 1.0) */
+    right: 10px;
+    bottom: 10px; /* Ajusta la posición vertical según tu diseño */
+}
+
+/* Estilos para el modal */
+.modal {
+    display: none; /* El modal está oculto por defecto */
+    position: fixed; /* Posición fija */
+    z-index: 1; /* Sitúa el modal por encima de todo */
+    left: 0;
+    top: 0;
+    width: 100%; /* Ancho completo */
+    height: 100%; /* Altura completa */
+    overflow: auto; /* Habilita el scroll si es necesario */
+    background-color: rgb(0,0,0); /* Color de fondo */
+    background-color: rgba(0,0,0,0.4); /* Color de fondo con opacidad */
+}
+
+/* Estilos para el contenido del modal */
+.modal-content {
+    background-color: #fefefe;
+    margin: 15% auto; /* 15% desde arriba y centrado */
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%; /* Ancho del modal */
+}
+
+/* Estilos para el botón de cerrar */
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* Estilos para la barra de búsqueda */
+.search-bar {
+    margin: 20px auto;
+    width: 50%;
+}
+
+.search-bar input[type="text"] {
+    width: 80%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.search-bar input[type="submit"] {
+    width: 18%;
+    background-color: #3b5998;
+    color: white;
+    cursor: pointer;
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.search-bar input[type="submit"]:hover {
+    background-color: #304d6d;
+}
+
+/* Estilos para los libros */
+.book {
+    background-color: black;
+    margin: 10px;
+    width: 200px;
+    height: 300px;
+    border: 5px solid #820042; /* Color de borde específico */
+    box-sizing: border-box;
+    position: relative;
+    overflow: hidden;
+}
+
+.book img {
+    width: 100%;
+    height: auto;
+    transition: transform 0.5s ease;
+}
+
+.book:hover img {
+    transform: scale(1.2);
+}
+
+.book .title {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    text-align: center;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+/* Estilos para el menú de opciones del libro */
+.book-options {
+    display: none;
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    text-align: center;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+.book-options a {
+    color: white;
+    text-decoration: none;
+    margin: 0 10px;
+}
+
+.book-options a:hover {
+    color: #ddd;
+}
+
+/* Muestra el menú de opciones cuando se pasa el mouse sobre el libro */
+.book:hover .book-options {
+    display: block;
+}

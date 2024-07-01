@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CODE.Libro</title>
+    <style>
+        @font-face {
+            font-family: 'Minecraftia';
+            src: url("../statics/fonts/Minecraftia-Regular.ttf");
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #000; /* Fondo negro */
+            color: #fff; /* Texto blanco */
+            text-align: center; /* Centramos todo el texto */
+        }
+
+        .header {
+            font-family: 'Minecraftia', sans-serif;
+            background-color: #910534; /* Color fucsia morado */
+            color: white;
+            padding: 100px 120px; /* Aumentamos el padding para hacer la sección más gruesa */
+            overflow: hidden;
+            position: relative; /* Agregamos posición relativa al contenedor */
+            width: 100%; /* Abarca todo el ancho de la página */
+        }
+
+        .header a.logo {
+            font-size: 120px; /* Aumentamos el tamaño de la fuente para hacer el título más grande */
+            font-weight: bold;
+            color: white; /* Mantenemos el color de la fuente en blanco */
+            text-decoration: none; /* Quitamos la línea debajo del texto */
+        }
+
+        .header a.logo span {
+            font-size: 50px; /* Hacemos que "Libro" sea un poco más pequeño */
+        }
+
+        .header a.logo:hover {
+            color: white; /* El título no cambia de color al pasar el mouse sobre él */
+        }
+
+        .content {
+            padding: 20px;
+        }
+
+        .buttons {
+            display: flex; /* Usamos flexbox para alinear los botones */
+            justify-content: center; /* Centramos los botones */
+            gap: 10px; /* Espacio entre los botones */
+        }
+
+        .buttons a {
+            background-color: #3b5998; /* Color azul de Facebook */
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+
+        .buttons a:hover {
+            background-color: #ddd;
+            color: black;
+        }
+
+        /* Estilo para la imagen */
+        .logo-programacion {
+            position: absolute;
+            width: 200px;
+            opacity: 0.3; /* Ajusta el valor según la transparencia deseada (0.0 a 1.0) */
+            right: 10px;
+            /* Nueva imagen sobre el título */
+            top: 100px; /* Ajusta la posición vertical según tu diseño */
+        }
+
+        /* Estilo para las imágenes en el footer */
+        .footer-logo {
+            position: absolute;
+            width: 200px;
+            opacity: 0.3; /* Ajusta el valor según la transparencia deseada (0.0 a 1.0) */
+            right: 10px;
+            bottom: 10px; /* Ajusta la posición vertical según tu diseño */
+        }
+
+        /* Estilos para el modal */
+        .modal {
+            display: none; /* El modal está oculto por defecto */
+            position: fixed; /* Posición fija */
+            z-index: 1; /* Situarlo encima de todo */
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%; /* Ancho completo */
+            height: 80%; /* Altura completa */
+            background-color: rgb(0,0,0); /* Color de fondo */
+            background-color: rgba(0,0,0,0.0); /* Color de fondo con opacidad */
+        }
+
+        /* Contenido del modal */
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto; /* 15% desde arriba y centrado */
+            padding: 20px;
+            border: 1px solid #888;
+            width: 30%; /* Ancho del modal */
+        }
+
+        /* Botón de cierre del modal */
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .modal-content {
+            position: relative;
+            padding: 20px;
+        }
+
+        .modal-content h2 {
+            color: #FF0000; /* Cambia esto al color que desees */
+        }
+
+        .close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .login {
+            width: 90%;
+            max-width: 600px;
+            height: auto;
+            padding: 16px;
+            background-color: #f0f2f5; /* Hace que el fondo del modal sea transparente */
+            margin: 0 auto;
+            border-radius: 5px;
+            box-shadow: 0px 0px 10px 0px #00000033;
+        }
+
+        .login h2 {
+            text-align: center;
+            color: #4a4a4a;
+        }
+
+        .login input[type="text"], .login input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0 10px 0;
+            border: none;
+            background-color: #f0f2f5;
+        }
+
+        .login input[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            color: #fff;
+            background-color: #1877f2;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .register {
+            width: 90%;
+            max-width: 600px;
+            height: auto;
+            padding: 16px;
+            background-color: #f0f2f5; /* Hace que el fondo del modal sea transparente */
+            margin: 0 auto;
+            border-radius: 5px;
+            box-shadow: 0px 0px 10px 0px #00000033;
+        }
+
+        .register h2 {
+            text-align: center;
+            color: #4a4a4a;
+        }
+
+        .register input[type="text"], .register input[type="email"], .register input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0 10px 0;
+            border: none;
+            background-color: #f0f2f5;
+        }
+        .register input[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            color: #fff;
+            background-color: #1877f2;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+    <script>
+        // Cargar la imagen aleatoriamente en diferentes posiciones
+        function loadRandomImage() {
+            const imagePath = "../statics/images/1.png";
+            const images = document.querySelectorAll(".footer-logo");
+            images.forEach((img) => {
+                const randomX = Math.floor(Math.random() * window.innerWidth);
+                const randomY = Math.floor(Math.random() * window.innerHeight);
+                img.src = imagePath;
+                img.style.left = randomX + "px";
+                img.style.bottom = randomY + "px";
+            });
+        }
+
+        // Cargar la imagen al cargar la página
+        window.addEventListener("load", loadRandomImage);
+    </script>
+</head>
+<body>
+    <div class="header">
+        <a href="#default" class="logo">Code.<span>Libro</span></a>
+    </div>
+    <div class="content">
+        <h1>Bienvenido a CodeLibro</h1>
+        <p>Por favor, inicia sesión o regístrate para continuar.</p>
+        <div class="buttons">
+            <a href="#" id="loginBtn">Iniciar Sesión</a>
+            <a href="#" id="registerBtn">Registrarse</a>
+        </div>
+    </div>
+
+    <!-- Modal de registro -->
+    <div id="registerModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Registrarse</h2>
+            <div class="register">
+                <form action="/register" method="post">
+                    <input type="text" id="username" name="username" placeholder="Nombre de usuario" required>
+                    <input type="email" id="email" name="email" placeholder="Correo electrónico" required>
+                    <input type="password" id="password" name="password" placeholder="Contraseña" required>
+                    <input type="submit" value="Registrarse">
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de inicio de sesión -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Iniciar Sesión</h2>
+            <div class="login">
+                <form action="/login" method="post">
+                    <input type="email" id="loginEmail" name="email" placeholder="Correo electrónico" required>
+                    <input type="password" id="loginPassword" name="password" placeholder="Contraseña" required>
+                    <input type="submit" value="Iniciar Sesión">
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <!-- Otras partes del footer (si las tienes) -->
+        <img src="../statics/images/golang.png.png" alt="Logo de Go">
+        <!-- Imágenes que se repiten en el footer -->
+        <img src="" class="footer-logo">
+        <img src="" class="footer-logo">
+        <img src="" class="footer-logo">
+        <img src="" class="footer-logo">
+        <img src="" class="footer-logo">
+        <img src="" class="footer-logo">
+        <img src="" class="footer-logo">
+        <img src="" class="footer-logo">
+        <img src="" class="footer-logo">
+        <img src="" class="footer-logo">
+        <!-- Agrega más imágenes según sea necesario -->
+    </footer>
+    
+    <!-- Agregar el archivo JavaScript -->
+    <script src="./statics/scripts/scripts.js"></script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
