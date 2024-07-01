@@ -43,7 +43,9 @@ En el archivo lector_libros.go, en caso de que prefieras cambiar la forma y la f
 
 Una vez el codigo sea descargado, en la terminal del IDE de su preferencia:
 
-      go run interfaz.go
+      go run main.go
+
+Abre tu navegador y ve a http://localhost:8080 para acceder a la aplicación.
 
 Inicia sesión si ya tienes una cuenta, o regístrate si eres un nuevo usuario.
 
@@ -52,5 +54,21 @@ Explora la biblioteca buscando libros por título o autor.
 Agrega libros a tu lista de favoritos para acceder a ellos fácilmente más tarde.
 
 Lee tus libros favoritos en formato PDF directamente desde la aplicación.
+
+Agrega y visualiza reseñas de los libros utilizando los modales mejorados.
+
+### Contribución
+
+Si deseas contribuir a este proyecto, por favor sigue estos pasos:
+
+Haz un fork del repositorio.
+
+Crea una nueva rama (git checkout -b feature/nueva-funcionalidad).
+
+Realiza tus cambios y haz commit (git commit -am 'Agregar nueva funcionalidad').
+
+Envía tus cambios a la rama principal (git push origin feature/nueva-funcionalidad).
+
+Crea un nuevo Pull Request.
 
 
